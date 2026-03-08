@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sebelum Ultahnya... Main Dulu! 🎮</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#FFD700;--orange:#FF6B2B;--red:#FF3D6B;
+  --green:#39FF14;--blue:#00C8FF;
+  --dark:#08080F;--mid:#111120;--card:#1A1A2E;
+  --light:#F0F0FF;
+}
+html,body{width:100%;min-height:100%;background:var(--dark);color:var(--light);font-family:'Syne',sans-serif;overflow-x:hidden}
+
+/* ═══ SHARED ═══ */
+canvas#bg{position:fixed;inset:0;z-index:0;pointer-events:none}
+#confetti-canvas{position:fixed;inset:0;z-index:200;pointer-events:none}
+
+/* ═══ SCREENS ═══ */
+.screen{position:fixed;inset:0;z-index:10;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;transition:opacity 0.7s ease,transform 0.7s ease}
+.screen.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+
+/* ═══ SCREEN 1 — INTRO ═══ */
+#s-intro{gap:24px;text-align:center}
+#s-intro .pre{font-size:12px;letter-spacing:0.35em;text-transform:uppercase;color:rgba(255,255,255,0.35)}
+#s-intro h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,14vw,130px);line-height:.88;
+  background:linear-gradient(135deg,var(--green),var(--blue));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 30px rgba(57,255,20,0.4))}
+#s-intro p{font-size:15px;color:rgba(255,255,255,0.55);max-width:340px;line-height:1.7}
+.btn-start{cursor:pointer;background:linear-gradient(135deg,var(--green),var(--blue));
+  color:#000;font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.12em;
+  border:none;border-radius:999px;padding:16px 52px;
+  box-shadow:0 0 30px rgba(57,255,20,0.4);
+  transition:transform .2s,box-shadow .3s}
+.btn-start:hover{transform:scale(1.06);box-shadow:0 0 55px rgba(57,255,20,0.55)}
+.btn-start:active{transform:scale(.97)}
+
+/* ═══ SCREEN 2 — GAME ═══ */
+#s-game{gap:0;padding:0}
+#game-ui{position:absolute;top:20px;left:0;right:0;display:flex;justify-content:space-between;align-items:center;padding:0 24px;z-index:20}
+#game-ui .stat{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.08em}
+#game-ui .score-box{color:var(--gold);text-shadow:0 0 12px var(--gold)}
+#game-ui .lives-box{color:var(--red);text-shadow:0 0 12px var(--red)}
+#game-ui .target-box{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.35)}
+#game-canvas{display:block;width:100%;height:100%;cursor:crosshair}
+#game-msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  background:rgba(8,8,15,.85);backdrop-filter:blur(8px);z-index:30;
+  font-family:'Bebas Neue',sans-serif;text-align:center}
+#game-msg h2{font-size:clamp(40px,10vw,90px);line-height:.9;
+  background:linear-gradient(135deg,var(--gold),var(--orange));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#game-msg p{font-size:14px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.hide-msg{display:none!important}
+
+/* ═══ SCREEN 3 — BIRTHDAY ═══ */
+#s-bday{gap:0;overflow-y:auto;justify-content:flex-start;padding:60px 20px 80px}
+.bday-inner{display:flex;flex-direction:column;align-items:center;gap:56px;width:100%;max-width:860px}
+.bday-tag{font-size:11px;font-weight:700;letter-spacing:.35em;text-transform:uppercase;color:var(--gold);
+  border:1px solid rgba(255,215,0,.4);padding:6px 18px;border-radius:999px;animation:fadeUp .6s ease both}
+.bday-hero{text-align:center;animation:fadeUp .8s .15s ease both}
+.bday-hero .sub{font-size:clamp(12px,2vw,15px);font-weight:700;letter-spacing:.3em;
+  text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:12px}
+.bday-hero h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(70px,18vw,180px);line-height:.88;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--orange) 55%,var(--red) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 40px rgba(255,215,0,.35))}
+.name-card{position:relative;background:var(--card);border:1px solid rgba(255,215,0,.2);
+  border-radius:24px;padding:36px 52px;text-align:center;overflow:hidden;
+  animation:fadeUp .8s .3s ease both}
+.name-card::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,215,0,.07),transparent 50%);pointer-events:none}
+.name-card .for-txt{font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-bottom:10px}
+.name-card .bday-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,10vw,90px);
+  color:#fff;text-shadow:0 0 50px rgba(255,215,0,.45);letter-spacing:.04em}
+.name-card .emojis{font-size:30px;margin-top:14px;letter-spacing:.12em}
+.wishes-label{font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:rgba(255,255,255,.3);
+  animation:fadeUp .8s .4s ease both}
+.wishes-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;width:100%}
+.wcard{background:var(--card);border:1px solid rgba(255,255,255,.07);border-radius:20px;
+  padding:28px 22px;transition:transform .3s,border-color .3s,box-shadow .3s;
+  animation:fadeUp .8s ease both}
+.wcard:hover{transform:translateY(-7px);border-color:rgba(255,215,0,.4);box-shadow:0 18px 48px rgba(255,215,0,.12)}
+.wcard .ico{font-size:34px;margin-bottom:12px}
+.wcard h3{font-size:13px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.wcard p{font-size:13px;line-height:1.65;color:rgba(255,255,255,.55)}
+.cake-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;animation:fadeUp .8s .5s ease both}
+.cake-ico{font-size:72px;animation:bounce 1.8s infinite ease-in-out}
+.cake-sub{font-size:13px;color:rgba(255,255,255,.35);letter-spacing:.12em}
+.footer-txt{font-size:12px;color:rgba(255,255,255,.2);letter-spacing:.1em;text-align:center;animation:fadeUp .8s .7s ease both}
+.wcard:nth-child(1){animation-delay:.42s}.wcard:nth-child(2){animation-delay:.52s}
+.wcard:nth-child(3){animation-delay:.62s}.wcard:nth-child(4){animation-delay:.72s}
+.wcard:nth-child(5){animation-delay:.82s}.wcard:nth-child(6){animation-delay:.92s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+
+/* ═══ AMBIENT PARTICLES ═══ */
+.star{position:fixed;border-radius:50%;background:#fff;pointer-events:none;z-index:1;animation:twinkle var(--d,3s) infinite ease-in-out var(--del,0s)}
+@keyframes twinkle{0%,100%{opacity:.08;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
+</style>
+</head>
+<body>
+
+<canvas id="bg"></canvas>
+<canvas id="confetti-canvas"></canvas>
+
+<!-- ═══ INTRO SCREEN ═══ -->
+<div class="screen" id="s-intro">
+  <p class="pre">Sebelum ucapan ultah...</p>
+  <h1>MAIN<br>DULU<br>BRO!</h1>
+  <p>Tangkap <strong style="color:var(--gold)">🎁 kado</strong> sebanyak mungkin & hindari <strong style="color:var(--red)">💣 bom</strong>.<br>Kumpulkan <strong style="color:var(--green)">15 poin</strong> untuk buka ucapan ultahnya!</p>
+  <button class="btn-start" onclick="startGame()">MULAI GAME 🕹️</button>
+</div>
+
+<!-- ═══ GAME SCREEN ═══ -->
+<div class="screen hide" id="s-game">
+  <div id="game-ui">
+    <div class="stat score-box">SKOR: <span id="ui-score">0</span></div>
+    <div class="stat target-box">TARGET: 15</div>
+    <div class="stat lives-box">NYAWA: <span id="ui-lives">❤️❤️❤️</span></div>
+  </div>
+  <canvas id="game-canvas"></canvas>
+  <div id="game-msg" class="hide-msg">
+    <h2 id="msg-title">GAME OVER</h2>
+    <p id="msg-sub">Coba lagi ya bro!</p>
+    <button class="btn-start" id="msg-btn" onclick="restartGame()">MAIN LAGI</button>
+  </div>
+</div>
+
+<!-- ═══ BIRTHDAY SCREEN ═══ -->
+<div class="screen hide" id="s-bday">
+  <div class="bday-inner">
+    <span class="bday-tag">🎉 Selamat, kamu berhasil!</span>
+    <div class="bday-hero">
+      <p class="sub">Selamat Ulang Tahun</p>
+      <h1 style="font-family:'Bebas Neue',sans-serif">HAPPY<br>BIRTH<br>DAY</h1>
+    </div>
+    <div class="name-card">
+      <p class="for-txt">Untuk Sahabat Terbaik</p>
+      <!-- ✏️ Ganti NAMA KAMU di bawah ini -->
+      <div class="bday-name">MUHAMMAD RIZKI PUTRA PURNAWAN</div>
+      <div class="emojis">🔥 👑 💪</div>
+    </div>
+    <p class="wishes-label">— Doa & Harapan Untukmu —</p>
+    <div class="wishes-grid">
+      <div class="wcard"><div class="ico">🌟</div><h3>Sukses Selalu</h3><p>Semua cita-cita dan impianmu semoga terwujud satu per satu tahun ini.</p></div>
+      <div class="wcard"><div class="ico">💪</div><h3>Sehat & Kuat</h3><p>Kesehatan adalah modal utama. Semoga badanmu selalu fit dan berenergi!</p></div>
+      <div class="wcard"><div class="ico">😄</div><h3>Bahagia Terus</h3><p>Semoga senyummu nggak pernah pudar, hari-harimu selalu penuh tawa.</p></div>
+      <div class="wcard"><div class="ico">🚀</div><h3>Level Up!</h3><p>Nambah umur, semoga naik level juga dalam karier dan kehidupan!</p></div>
+      <div class="wcard"><div class="ico">🤝</div><h3>Orang-Orang Baik</h3><p>Semoga kamu selalu dikelilingi orang yang tulus, setia, dan support kamu.</p></div>
+      <div class="wcard"><div class="ico">🎯</div><h3>Fokus & Konsisten</h3><p>Apapun yang kamu kejar tahun ini, semoga kamu nggak menyerah di tengah jalan!</p></div>
+    </div>
+    <div class="cake-wrap">
+      <div class="cake-ico">🎂</div>
+      <p class="cake-sub">Make a wish & blow the candles!</p>
+    </div>
+    <p class="footer-txt">Dibuat dengan ❤️ — karena kamu harus main dulu baru dapat hadiahnya 😄</p>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════
+   AMBIENT BACKGROUND
+═══════════════════════════════ */
+(function(){
+  const canvas=document.getElementById('bg');
+  const ctx=canvas.getContext('2d');
+  let W,H;
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  window.addEventListener('resize',resize);resize();
+  // draw static gradient
+  function drawBg(){
+    ctx.clearRect(0,0,W,H);
+    const g=ctx.createRadialGradient(W*.2,0,0,W*.2,0,W*.9);
+    g.addColorStop(0,'rgba(57,255,20,0.08)');
+    g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    const g2=ctx.createRadialGradient(W*.8,H,0,W*.8,H,W*.8);
+    g2.addColorStop(0,'rgba(0,200,255,0.07)');
+    g2.addColorStop(1,'transparent');
+    ctx.fillStyle=g2;ctx.fillRect(0,0,W,H);
+  }
+  drawBg();
+  window.addEventListener('resize',drawBg);
+  // stars
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');
+    s.className='star';
+    const sz=Math.random()*3+1;
+    s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${(Math.random()*4+2).toFixed(1)}s;--del:${(Math.random()*3).toFixed(1)}s`;
+    document.body.appendChild(s);
+  }
+})();
+
+/* ═══════════════════════════════
+   CONFETTI ENGINE
+═══════════════════════════════ */
+const CC=document.getElementById('confetti-canvas');
+const CCX=CC.getContext('2d');
+let CW,CH,cParts=[],cRunning=false;
+function cResize(){CW=CC.width=window.innerWidth;CH=CC.height=window.innerHeight}
+window.addEventListener('resize',cResize);cResize();
+const CCOLS=['#FFD700','#FF6B2B','#FF3D6B','#39FF14','#00C8FF','#fff','#FFE566'];
+function CP(){
+  this.x=Math.random()*CW;this.y=-10;
+  this.vx=(Math.random()-.5)*6;this.vy=Math.random()*5+2;
+  this.w=Math.random()*10+5;this.h=Math.random()*6+3;
+  this.color=CCOLS[Math.floor(Math.random()*CCOLS.length)];
+  this.angle=Math.random()*360;this.spin=(Math.random()-.5)*9;
+  this.alpha=1;this.g=0.13;
+}
+function launchConfetti(n=250){
+  for(let i=0;i<n;i++)cParts.push(new CP());
+  if(!cRunning){cRunning=true;cLoop();}
+}
+function cLoop(){
+  CCX.clearRect(0,0,CW,CH);
+  cParts.forEach(p=>{
+    p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.angle+=p.spin;
+    if(p.y>CH+20)p.alpha-=0.06;
+    CCX.save();CCX.globalAlpha=Math.max(0,p.alpha);
+    CCX.translate(p.x,p.y);CCX.rotate(p.angle*Math.PI/180);
+    CCX.fillStyle=p.color;CCX.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+    CCX.restore();
+  });
+  cParts=cParts.filter(p=>p.alpha>0);
+  if(cParts.length>0)requestAnimationFrame(cLoop);
+  else{cRunning=false;CCX.clearRect(0,0,CW,CH);}
+}
+
+/* ═══════════════════════════════
+   SCREEN TRANSITIONS
+═══════════════════════════════ */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('hide'));
+  document.getElementById(id).classList.remove('hide');
+}
+
+/* ═══════════════════════════════
+   GAME ENGINE
+═══════════════════════════════ */
+const GC=document.getElementById('game-canvas');
+const GX=GC.getContext('2d');
+let GW,GH;
+function resizeGame(){
+  GW=GC.width=GC.offsetWidth;
+  GH=GC.height=GC.offsetHeight;
+}
+
+let score=0,lives=3,gameRunning=false,raf2,objects=[],spawnTimer=0,spawnRate=90,gameSpeed=1;
+const ITEMS=[
+  {emoji:'🎁',pts:1,type:'good',size:44},
+  {emoji:'🎂',pts:2,type:'good',size:44},
+  {emoji:'⭐',pts:1,type:'good',size:36},
+  {emoji:'🍰',pts:1,type:'good',size:40},
+  {emoji:'🎵',pts:1,type:'good',size:36},
+  {emoji:'💣',pts:-1,type:'bad',size:40},
+  {emoji:'🔥',pts:-1,type:'bad',size:38},
+];
+
+function spawnObject(){
+  const t=ITEMS[Math.floor(Math.random()*ITEMS.length)];
+  const margin=60;
+  objects.push({
+    x:margin+Math.random()*(GW-margin*2),
+    y:-60,
+    vy:(1.5+Math.random()*2)*gameSpeed,
+    vx:(Math.random()-.5)*1.2,
+    emoji:t.emoji,pts:t.pts,type:t.type,size:t.size,
+    alpha:1,popping:false,popScale:1,popAlpha:1,
+    id:Math.random()
+  });
+}
+
+function drawObjects(){
+  objects.forEach(o=>{
+    GX.save();
+    GX.globalAlpha=o.popping?o.popAlpha:o.alpha;
+    GX.font=`${o.popping?o.size*o.popScale:o.size}px serif`;
+    GX.textAlign='center';GX.textBaseline='middle';
+    GX.fillText(o.emoji,o.x,o.y);
+    GX.restore();
+  });
+}
+
+function updateObjects(){
+  objects.forEach(o=>{
+    if(o.popping){
+      o.popScale+=0.08;o.popAlpha-=0.12;
+    } else {
+      o.y+=o.vy;o.x+=o.vx;
+      if(o.x<30||o.x>GW-30)o.vx*=-1;
+      // missed good item
+      if(o.y>GH+40&&!o.popping&&o.type==='good'){
+        lives--;updateLivesUI();
+        o.popping=true;
+      }
+      // bad item falls off safely
+      if(o.y>GH+40&&!o.popping&&o.type==='bad'){
+        o.popAlpha=0;
+      }
+    }
+  });
+  objects=objects.filter(o=>o.popAlpha>0&&o.alpha>0);
+}
+
+function updateLivesUI(){
+  const h=['❤️','❤️','❤️'];
+  for(let i=lives;i<3;i++)h[i]='🖤';
+  document.getElementById('ui-lives').textContent=h.join('');
+  if(lives<=0)endGame(false);
+}
+
+function gameLoop(){
+  resizeGame();
+  GX.clearRect(0,0,GW,GH);
+
+  // Draw grid
+  GX.strokeStyle='rgba(255,255,255,0.04)';GX.lineWidth=1;
+  for(let x=0;x<GW;x+=60){GX.beginPath();GX.moveTo(x,0);GX.lineTo(x,GH);GX.stroke();}
+  for(let y=0;y<GH;y+=60){GX.beginPath();GX.moveTo(0,y);GX.lineTo(GW,y);GX.stroke();}
+
+  spawnTimer++;
+  if(spawnTimer>=spawnRate){spawnObject();spawnTimer=0;spawnRate=Math.max(40,spawnRate-1);}
+  if(score>5)gameSpeed=1.3;
+  if(score>10)gameSpeed=1.6;
+
+  updateObjects();
+  drawObjects();
+
+  // Score bar
+  const pct=Math.min(score/15,1);
+  GX.fillStyle='rgba(255,255,255,0.07)';
+  GX.beginPath();GX.roundRect(GW/2-120,GH-28,240,10,5);GX.fill();
+  const grad=GX.createLinearGradient(GW/2-120,0,GW/2+120,0);
+  grad.addColorStop(0,'#39FF14');grad.addColorStop(1,'#00C8FF');
+  GX.fillStyle=grad;
+  GX.beginPath();GX.roundRect(GW/2-120,GH-28,240*pct,10,5);GX.fill();
+  GX.fillStyle='rgba(255,255,255,0.35)';GX.font='11px Syne';GX.textAlign='center';
+  GX.fillText(score+' / 15',GW/2,GH-34);
+
+  if(gameRunning)raf2=requestAnimationFrame(gameLoop);
+}
+
+GC.addEventListener('click',e=>{
+  if(!gameRunning)return;
+  const rect=GC.getBoundingClientRect();
+  const mx=e.clientX-rect.left,my=e.clientY-rect.top;
+  const scaleX=GW/rect.width,scaleY=GH/rect.height;
+  const cx=mx*scaleX,cy=my*scaleY;
+
+  for(let i=objects.length-1;i>=0;i--){
+    const o=objects[i];
+    if(o.popping)continue;
+    const dx=cx-o.x,dy=cy-o.y;
+    if(Math.sqrt(dx*dx+dy*dy)<o.size*.7){
+      o.popping=true;
+      if(o.type==='good'){
+        score+=o.pts;
+        document.getElementById('ui-score').textContent=score;
+        if(score>=15){endGame(true);return;}
+      } else {
+        lives--;updateLivesUI();
+        if(lives<=0)return;
+      }
+      break;
+    }
+  }
+});
+
+function startGame(){
+  showScreen('s-game');
+  setTimeout(()=>{
+    score=0;lives=3;objects=[];spawnTimer=0;spawnRate=90;gameSpeed=1;
+    document.getElementById('ui-score').textContent='0';
+    updateLivesUI();
+    document.getElementById('game-msg').classList.add('hide-msg');
+    resizeGame();gameRunning=true;gameLoop();
+  },200);
+}
+
+function endGame(win){
+  gameRunning=false;cancelAnimationFrame(raf2);
+  const msg=document.getElementById('game-msg');
+  const title=document.getElementById('msg-title');
+  const sub=document.getElementById('msg-sub');
+  const btn=document.getElementById('msg-btn');
+  if(win){
+    title.textContent='YAYYY!! 🎉';
+    sub.textContent='Kamu berhasil! Sekarang buka hadiahnya...';
+    btn.textContent='BUKA UCAPAN ULTAH 🎁';
+    btn.onclick=showBirthday;
+  } else {
+    title.textContent='GAME OVER 💀';
+    sub.textContent='Nyawa habis! Coba lagi bro!';
+    btn.textContent='MAIN LAGI 🔄';
+    btn.onclick=restartGame;
+  }
+  msg.classList.remove('hide-msg');
+}
+
+function restartGame(){
+  document.getElementById('game-msg').classList.add('hide-msg');
+  score=0;lives=3;objects=[];spawnTimer=0;spawnRate=90;gameSpeed=1;
+  document.getElementById('ui-score').textContent='0';
+  updateLivesUI();
+  resizeGame();gameRunning=true;gameLoop();
+}
+
+function showBirthday(){
+  showScreen('s-bday');
+  setTimeout(()=>{launchConfetti(300);},500);
+  setTimeout(()=>{launchConfetti(200);},1400);
+}
+</script>
+</body>
+</html>
